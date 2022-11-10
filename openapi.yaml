@@ -1,0 +1,394 @@
+openapi: 3.0.0
+x-stoplight:
+  id: xuas78mv4shus
+info:
+  contact: {}
+  title: Swagger EMM Jobs API
+  description: TODO
+  version: 1.0.0
+servers:
+  - url: 'http://{hostname}:8092'
+    variables:
+      hostname:
+        default: localhost
+tags:
+  - name: jobs
+    description: TODO
+  - name: common
+    description: TODO
+paths:
+  /jobs:
+    get:
+      description: get list of jobs
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListJobsResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      summary: list job
+      tags:
+        - jobs
+      operationId: listJobs
+    post:
+      description: create new job
+      responses:
+        '201':
+          $ref: '#/components/responses/CreateJobResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      summary: add job
+      tags:
+        - jobs
+      operationId: createJob
+      requestBody:
+        $ref: '#/components/requestBodies/CreateJobRequest'
+      parameters: []
+  '/jobs/{jobId}':
+    get:
+      description: get job by
+      responses:
+        '200':
+          $ref: '#/components/responses/GetJobResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      summary: get job
+      tags:
+        - jobs
+      operationId: getJobById
+      parameters: []
+    patch:
+      description: update existing job partially
+      responses:
+        '200':
+          $ref: '#/components/responses/UpdateJobResponse'
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  necode:
+                    type: string
+              examples:
+                что:
+                  value:
+                    code: зачем
+                    necode: string
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      summary: update job
+      tags:
+        - jobs
+      operationId: updateJob
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateJobRequest'
+      parameters: []
+    parameters:
+      - $ref: '#/components/parameters/jobId'
+  '/jobs/{jobId}/context':
+    get:
+      description: 'get job context by its identifier, there can be'
+      responses:
+        '200':
+          $ref: '#/components/responses/GetJobContextResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      summary: get job context
+      tags:
+        - jobs
+      operationId: getJobContext
+      parameters: []
+    put:
+      description: overwrites jobs context.
+      responses:
+        '200':
+          $ref: '#/components/responses/SetJobContextResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      summary: set context of job
+      tags:
+        - jobs
+      operationId: setJobContext
+      requestBody:
+        $ref: '#/components/requestBodies/SetJobContextRequest'
+      parameters: []
+    parameters:
+      - $ref: '#/components/parameters/jobId'
+  '/jobs/{jobId}/response':
+    get:
+      description: Получить джобу
+      responses:
+        '200':
+          $ref: '#/components/responses/GetJobResponseResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  '':
+                    type: string
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      summary: get job response
+      operationId: getJobResponse
+      tags:
+        - jobs
+      parameters: []
+    parameters:
+      - $ref: '#/components/parameters/jobId'
+components:
+  schemas:
+    JobModel:
+      type: object
+      x-examples:
+        example-1:
+          createdAt: '2019-08-24T14:15:22Z'
+          id: 87c8e662-5d81-4e53-b70b-98742c371c8d
+          kind: deviceImport
+          pingTimeout: 5m0s
+          status: WORKING
+          updatedAt: '2019-08-24T14:15:22Z'
+      properties:
+        createdAt:
+          description: CreatedAt is a job creation time.
+          format: date-time
+          type: string
+        id:
+          description: ID is unique job identifier.
+          example: 87c8e662-5d81-4e53-b70b-98742c371c8d
+          format: string
+          type: string
+        kind:
+          description: 'Kind represents type of job, it can be anything user wants.'
+          example: deviceImport
+          format: string
+          type: string
+        pingTimeout:
+          description: |-
+            PingTimeout is a time duration in which job should be updated, if not
+            such job will be considered as stuck one.
+          example: 5m0s
+          format: string
+          type: string
+        status:
+          description: Status is a field for job status representation.
+          example: WORKING
+          format: string
+          type: string
+        updatedAt:
+          description: UpdatedAt is a job last update time.
+          format: date-time
+          type: string
+      required:
+        - createdAt
+        - id
+        - kind
+        - pingTimeout
+        - status
+        - updatedAt
+    JobResponseModel:
+      title: JobResponseModel
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        header:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        body:
+          type: string
+      required:
+        - statusCode
+        - header
+        - body
+    ErrorModel:
+      title: ErrorModel
+      x-stoplight:
+        id: bay2ma57nwzox
+      type: object
+      properties:
+        code:
+          type: string
+        error:
+          type: string
+      required:
+        - code
+        - error
+      x-examples:
+        example-1:
+          code: string
+          error: string
+        example-2:
+          code: string2
+          error: string2
+        example-3:
+          code: string3
+          error: string3
+  responses:
+    GetJobResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/JobModel'
+    UpdateJobResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/JobModel'
+    ErrorResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+          examples:
+            BadRequest:
+              value:
+                code: BAD_REQUEST
+                error: string
+    SetJobContextResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/JobModel'
+    CreateJobResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/JobModel'
+    GetJobResponseResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/JobResponseModel'
+    ListJobsResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobModel'
+            required:
+              - data
+        application/xml:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/JobModel'
+            required:
+              - data
+    GetJobContextResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            type: string
+  requestBodies:
+    CreateJobRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              kind:
+                type: string
+                description: 'Kind represents type of job, it can be anything user wants.'
+              pingTimeout:
+                type: string
+                description: 'PingTimeout is a time duration in which job should be updated, if not such job will be considered as stuck one.'
+            required:
+              - kind
+              - pingTimeout
+    UpdateJobRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              response:
+                $ref: '#/components/schemas/JobResponseModel'
+              status:
+                type: string
+    SetJobContextRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              context:
+                type: string
+            required:
+              - context
+  parameters:
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 25
+      description: It a specifies a limited number of rows in the result set.
+    offset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: It excludes the first set of records.
+    jobId:
+      name: jobId
+      in: path
+      required: true
+      schema:
+        type: string
